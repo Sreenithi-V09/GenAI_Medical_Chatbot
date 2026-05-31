@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medical Chatbot</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="chat-header">
+      <h1>🩺 Medical AI Assistant</h1>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+
+      <div class="bot-message">
+        Hello! How can I help you today?
+      </div>
+
+    </div>
+
+    <div class="input-area">
+
+      <input
+        type="text"
+        id="userInput"
+        placeholder="Enter your symptoms..."
+      >
+
+      <button onclick="sendMessage()">
+        Send
+      </button>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    async function sendMessage() {
+
+      let inputField = document.getElementById("userInput");
+      let message = inputField.value;
+
+      if (message.trim() === "") {
+        return;
+      }
+
+      let chatBox = document.getElementById("chatBox");
+
+      // User Message
+      let userDiv = document.createElement("div");
+      userDiv.className = "user-message";
+      userDiv.innerHTML = message;
+      chatBox.appendChild(userDiv);
+
+      // Clear input
+      inputField.value = "";
+
+      // Send to Flask
+      let response = await fetch("/get", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: message
+        })
+      });
+
+      let data = await response.json();
+
+      // Bot Message
+      let botDiv = document.createElement("div");
+      botDiv.className = "bot-message";
+      botDiv.innerHTML = data.response;
+
+      chatBox.appendChild(botDiv);
+
+      // Auto Scroll
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+  </script>
+
+</body>
+</html>
